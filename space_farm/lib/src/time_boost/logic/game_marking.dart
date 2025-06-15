@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:space_farm/src/apps/data/apps_repository.dart';
 import 'package:space_farm/src/apps/model/local_app.dart';
 import 'package:space_farm/src/apps/model/optional.dart';
+import 'package:space_farm/src/common/extensions/context_extension.dart';
 import 'package:space_farm/src/shared/elevated_button.dart';
 import 'package:space_farm/src/shared/filled_button.dart';
 import 'package:space_farm/src/shared/snackbar.dart';
@@ -9,7 +10,7 @@ import 'package:space_farm/src/shared/text_field.dart';
 import 'package:space_farm/src/time_boost/model/time_filter_type.dart';
 
 class GameMarking {
-  GameMarking({required this.appsRepository});
+  const GameMarking({required this.appsRepository});
 
   final IAppsRepository appsRepository;
 
@@ -43,7 +44,7 @@ class GameMarking {
       onUpdateApp.call(app);
     }
     if (context.mounted) {
-      showSnack(context, 'Подготовлено ${updatedApps.length} игр для авто-запуска');
+      showSnack(context, '${context.l10n.prepared} ${updatedApps.length} ${context.l10n.autoRunningGamesCount}');
     }
   }
 
@@ -70,9 +71,9 @@ class GameMarking {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Text(
-                  'Пометить игры для автозапуска',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
+                Text(
+                  context.l10n.markGamesToAutoStart,
+                  style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
                 ),
                 const SizedBox(height: 16),
                 Row(
@@ -81,12 +82,12 @@ class GameMarking {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text('Min', style: TextStyle(fontSize: 14)),
+                          Text(context.l10n.filterMin, style: const TextStyle(fontSize: 14)),
                           const SizedBox(height: 8),
                           SteamTextField(
                             controller: minController,
                             keyboardType: TextInputType.number,
-                            hintText: 'Мин ${timeFilterType.localizedText(context)}',
+                            hintText: '${context.l10n.filterMin} ${timeFilterType.localizedText(context)}',
                           ),
                         ],
                       ),
@@ -96,12 +97,12 @@ class GameMarking {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text('Max', style: TextStyle(fontSize: 14)),
+                          Text(context.l10n.filterMax, style: const TextStyle(fontSize: 14)),
                           const SizedBox(height: 8),
                           SteamTextField(
                             controller: maxController,
                             keyboardType: TextInputType.number,
-                            hintText: 'Макс ${timeFilterType.localizedText(context)}',
+                            hintText: '${context.l10n.filterMax} ${timeFilterType.localizedText(context)}',
                           ),
                         ],
                       ),
@@ -109,23 +110,16 @@ class GameMarking {
                   ],
                 ),
                 const SizedBox(height: 12),
-                const Text('Конечное время', style: TextStyle(fontSize: 14)),
+                Text(context.l10n.autoStopTime, style: const TextStyle(fontSize: 14)),
                 const SizedBox(height: 8),
                 SteamTextField(
                   controller: targetController,
                   keyboardType: TextInputType.number,
-                  hintText: 'Конечные ${timeFilterType.localizedText(context)}',
+                  hintText: '${context.l10n.autoStopped} ${timeFilterType.localizedText(context).toLowerCase()}',
                 ),
                 const SizedBox(height: 32),
                 Row(
                   children: [
-                    Expanded(
-                      child: SteamFilledButton(
-                        onPressed: () => Navigator.of(context).pop(),
-                        child: const Text('Отмена', style: TextStyle(color: Colors.white)),
-                      ),
-                    ),
-                    const SizedBox(width: 16),
                     Expanded(
                       child: SteamElevatedButton(
                         onPressed: () {
@@ -138,7 +132,15 @@ class GameMarking {
                           onSubmit(min, max, target);
                           Navigator.of(context).pop();
                         },
-                        child: const Text('Пометить', style: TextStyle(color: Colors.white)),
+                        child: Text(context.l10n.markGame, style: const TextStyle(color: Colors.white)),
+                      ),
+                    ),
+
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: SteamFilledButton(
+                        onPressed: () => Navigator.of(context).pop(),
+                        child: Text(context.l10n.cancel, style: const TextStyle(color: Colors.white)),
                       ),
                     ),
                   ],

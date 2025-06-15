@@ -4,7 +4,10 @@ import 'package:clock/clock.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:space_farm/src/apps/data/apps_repository.dart';
 import 'package:space_farm/src/common/components/prefs_storage/prefs_storage.dart';
+import 'package:space_farm/src/common/components/prefs_storage/settings/settings_data_source.dart';
 import 'package:space_farm/src/initialization/model/dependencies_container.dart';
+import 'package:space_farm/src/settings/data/settings_repository.dart';
+import 'package:space_farm/src/settings/logic/app_settings_bloc.dart';
 import 'package:space_farm/src/steam/data/steam_game.dart';
 import 'package:space_farm/src/steam/data/steam_hours.dart';
 import 'package:space_farm/src/steam/data/steam_kit.dart';
@@ -61,7 +64,7 @@ Future<DependenciesContainer> createDependenciesContainer() async {
   final sharedPreferences = SharedPreferencesAsync();
 
   final prefsStorage = PrefsStorage(sharedPreferences: sharedPreferences);
-
+  final appSettingsBloc = await createAppSettingsBloc(sharedPreferences);
   final steamKitService = SteamKitService();
   final steamHoursService = SteamHoursService();
   final steamGameService = SteamGameService();
@@ -73,5 +76,20 @@ Future<DependenciesContainer> createDependenciesContainer() async {
     steamHoursService: steamHoursService,
   );
 
-  return DependenciesContainer(appsRepository: appsRepository, steamGameService: steamGameService);
+  return DependenciesContainer(
+    appSettingsBloc: appSettingsBloc,
+    appsRepository: appsRepository,
+    steamGameService: steamGameService,
+  );
+}
+
+Future<AppSettingsBloc> createAppSettingsBloc(SharedPreferencesAsync sharedPreferences) async {
+  final appSettingsRepository = AppSettingsRepository(
+    datasource: AppSettingsDataSource(sharedPreferences: sharedPreferences),
+  );
+
+  final appSettings = await appSettingsRepository.getAppSettings();
+  final initialState = AppSettingsState.idle(appSettings: appSettings);
+
+  return AppSettingsBloc(appSettingsRepository: appSettingsRepository, initialState: initialState);
 }

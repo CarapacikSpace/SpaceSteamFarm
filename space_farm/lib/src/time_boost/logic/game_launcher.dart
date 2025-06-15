@@ -39,7 +39,7 @@ class GameLauncher {
         steamGame.killProcessById(launchedProcess);
         batchLaunchedAppIds.remove(appId);
       } on Object catch (e, st) {
-        showSnack(context, 'Ошибка остановки процесса $appId: $e\n$st');
+        showSnack(context, 'Error killing process $appId: $e\n$st');
       }
 
       launchedGames.removeWhere((p) => p.app.appId == appId);
@@ -61,7 +61,7 @@ class GameLauncher {
           await appsRepository.updateApp(app);
         } on Object catch (e, st) {
           if (context.mounted) {
-            showSnack(context, 'Ошибка обновления времени игры $appId: $e\n$st');
+            showSnack(context, 'Error update game time $appId: $e\n$st');
           }
         }
       }
@@ -98,7 +98,7 @@ class GameLauncher {
       });
     } on Object catch (e, st) {
       if (context.mounted) {
-        showSnack(context, 'Ошибка запуска игры $appId: $e\n$st');
+        showSnack(context, 'Error running process $appId: $e\n$st');
       }
     }
   }

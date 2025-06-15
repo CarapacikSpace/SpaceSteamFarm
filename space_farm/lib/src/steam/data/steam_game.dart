@@ -49,7 +49,7 @@ class SteamGameService {
     }
   }
 
-  Future<void> killAllSteamGames() async {
+  Future<void> killAllProcesses() async {
     final platform = Platform.operatingSystem;
     final arch = await Utils.getCPUArchitecture();
     final normalizedPlatform = switch (platform) {
@@ -59,7 +59,7 @@ class SteamGameService {
     };
     final prefix = 'SteamGame_${normalizedPlatform}_$arch';
 
-    dev.log('Поиск и остановка всех процессов с префиксом: $prefix');
+    dev.log('Searching and terminating all processes with prefix: $prefix');
 
     if (platform == 'windows') {
       final result = await Process.run('tasklist', []);
@@ -73,9 +73,9 @@ class SteamGameService {
             if (pid != null) {
               try {
                 await Process.run('taskkill', ['/F', '/PID', '$pid']);
-                dev.log('Остановлен процесс $prefix (PID $pid)');
+                dev.log('Terminated process $prefix (PID $pid)');
               } on Object catch (e) {
-                dev.log('Не удалось остановить PID $pid: $e');
+                dev.log('Failed to terminate PID $pid: $e');
               }
             }
           }
@@ -93,16 +93,16 @@ class SteamGameService {
             if (pid != null) {
               try {
                 await Process.run('kill', ['-9', '$pid']);
-                dev.log('Остановлен процесс $prefix (PID $pid)');
+                dev.log('Terminated process $prefix (PID $pid)');
               } on Object catch (e) {
-                dev.log('Не удалось остановить PID $pid: $e');
+                dev.log('Failed to terminate PID $pid: $e');
               }
             }
           }
         }
       }
     } else {
-      dev.log('Платформа не поддерживается: $platform');
+      dev.log('Unsupported platform: $platform');
     }
   }
 }

@@ -31,6 +31,8 @@ abstract interface class IAppsRepository {
   Future<void> updateApp(LocalApp app);
 
   Future<void> updateApps(List<LocalApp> updatedApps);
+
+  Future<void> killAllProcesses$SteamKit();
 }
 
 class AppsRepository implements IAppsRepository {
@@ -106,7 +108,7 @@ class AppsRepository implements IAppsRepository {
       final updatedApps = await _localAppsDataSource.getData();
       return updatedApps;
     } on Object catch (e, st) {
-      log('Не удалось обновить часы: $e', stackTrace: st);
+      log('Failed to update hours: $e', stackTrace: st);
       return cachedApps;
     }
   }
@@ -167,4 +169,7 @@ class AppsRepository implements IAppsRepository {
     final newList = appMap.values.toList();
     await _localAppsDataSource.setData(newList);
   }
+
+  @override
+  Future<void> killAllProcesses$SteamKit() => _steamKitService.killAllProcesses();
 }

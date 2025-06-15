@@ -29,11 +29,12 @@ List<LocalApp> mergeAppsLists({
 
     final stopAt = _resolveStopAtMinutes(playtime, cached?.stopAtMinutes);
     final name =
-        recent?.name.nullIFEmpty ??
-        owned?.name.nullIFEmpty ??
-        steamKit?.name.nullIFEmpty ??
-        cached?.name.nullIFEmpty ??
-        id.toString();
+        (recent?.name.nullIFEmpty ??
+                owned?.name.nullIFEmpty ??
+                steamKit?.name.nullIFEmpty ??
+                cached?.name.nullIFEmpty ??
+                id.toString())
+            .trim();
     final type = steamKit?.type ?? cached?.type ?? SteamAppType.other;
     final reviewPercentage = steamKit?.reviewPercentage ?? cached?.reviewPercentage;
     final isHidden = steamKit?.isHidden ?? cached?.isHidden ?? false;

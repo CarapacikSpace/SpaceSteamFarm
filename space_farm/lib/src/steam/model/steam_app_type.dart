@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:space_farm/src/common/extensions/context_extension.dart';
 
 enum SteamAppType {
   game,
@@ -22,13 +23,13 @@ enum SteamAppType {
   };
 
   String localizedText(BuildContext context) => switch (this) {
-    game => 'Игры',
-    demo => 'Demo',
-    music => 'Саундтреки',
-    application => 'Программы',
-    video => 'Видео',
-    tool => 'Инструменты',
-    dlc => 'DLC',
-    _ => 'Другие',
+    game => context.l10n.categoryGames,
+    demo => context.l10n.categoryDemos,
+    music => context.l10n.categorySoundtracks,
+    application => context.l10n.categorySoftware,
+    video => context.l10n.categoryVideos,
+    tool => context.l10n.categoryTools,
+    dlc => context.l10n.categoryDlc,
+    _ => context.l10n.categoryOther,
   };
 }

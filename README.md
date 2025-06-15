@@ -1,33 +1,40 @@
-# SteamSpaceFarm
+# Space Farm
 
-**Space Farm** is a desktop Flutter application for managing your Steam game library and boosting playtime in a streamlined, user-friendly way.
+**Space Farm** is a desktop Flutter app for conveniently managing your Steam library and simulating playtime.
 
-![Space Farm Screenshot](.github/screenshots/ru.png)
+![Screenshot of Space Farm](.github/screenshots/en.png)
 
 ## 🔧 Features
 
-- 🧩 Fetch games via:
-  - Steam API key + SteamID
-  - Steam login/password (for private/family shared/hidden games)
-- 🕹️ Launch games using your local Steam client
-- ⭐ Mark favorite games or set playtime goals
-- 🗂️ Filter games by:
-  - Name or AppID
-  - Type, time played, or launch status
-- 📦 Launch in batch mode:
-  - Start up to 30 marked/favorite games with auto stop after X minutes
-  - Auto switch to next game in queue
-- ✏️ Edit time manually, copy AppID, hide games
-- ⚠️ HARD STOP — terminate all running Steam processes
-- 💾 Games and playtime data stored locally as JSON cache
+- 🧩 Load game data via:
+  - Steam API Key + SteamID
+  - Steam login and password (including hidden, private, and Steam Family games)
+- 🕹️ Launch games using the local Steam client
+- ⭐ Add to favorites and set time goals
+- 🗂️ Filtering and sorting:
+  - By name, AppID, type, or launch status
+  - Sort by time, alphabetically, or by last launch date
+- 🖼️ Switch between card views: **Library / Header / Icon**
+- 🌍 Multilingual support (you can add your own language if missing)
+- 📦 Batch launching:
+  - Up to 32 games with automatic stopping when time is reached
+  - Automatically switch to the next game in queue
+- ✏️ Edit playtime, copy AppID, and hide games
+- ⚠️ **HARD STOP** — forcefully terminates all Steam-related processes
+- 💾 Cache data in local JSON files
 
 ## 🚫 Steam Limitations
 
-> Steam counts time for up to **32 concurrent games**. Anything beyond that won't accumulate time.  
-> Space Farm handles this limit by launching only 30 games and rotating them when needed.
+> Steam only tracks playtime in **32 games at once**. All others are ignored.  
+> Space Farm manages the queue to ensure your playtime progress is recorded without loss.
 
 ## 📥 Installation
 
-1. [Download latest](https://github.com/CarapacikSpace/SpaceSteamFarm/releases/latest)
-2. Extract archive
+1. [Download the latest release](https://github.com/CarapacikSpace/SpaceSteamFarm/releases/latest)
+2. Extract the archive
 3. Run `SpaceFarm.exe`
+
+## 💬 Feedback & Community
+
+Have suggestions, questions, or feedback? Join the discussion and share your ideas here:  
+[💬 Discord server](https://discord.gg/Wy78VE6mdq)

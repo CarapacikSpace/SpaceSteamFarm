@@ -15,9 +15,9 @@ class SteamHoursService {
     try {
       final response = await client.get(uri);
       if (response.statusCode == 429) {
-        throw Exception('Steam API: Превышен лимит запросов. Подождите несколько минут перед отправкой запроса');
+        throw Exception('Steam API: Rate limit exceeded. Please wait a few minutes before sending another request.');
       } else if (response.statusCode >= 400) {
-        throw Exception('Steam API: Ошибка HTTP ${response.statusCode}');
+        throw Exception('Steam API: HTTP error ${response.statusCode}');
       }
 
       final decodedResponse = json.decode(utf8.decode(response.bodyBytes)) as Map<String, dynamic>;
@@ -38,9 +38,9 @@ class SteamHoursService {
     try {
       final response = await client.get(uri);
       if (response.statusCode == 429) {
-        throw Exception('Steam API: Превышен лимит запросов. Подождите несколько минут перед отправкой запроса');
+        throw Exception('Steam API: Rate limit exceeded. Please wait a few minutes before sending another request.');
       } else if (response.statusCode >= 400) {
-        throw Exception('Steam API: Ошибка HTTP ${response.statusCode}');
+        throw Exception('Steam API: HTTP error ${response.statusCode}');
       }
 
       final decodedResponse = json.decode(utf8.decode(response.bodyBytes)) as Map<String, dynamic>;

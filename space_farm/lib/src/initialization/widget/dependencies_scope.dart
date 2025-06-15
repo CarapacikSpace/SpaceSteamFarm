@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:space_farm/src/common/components/extensions/context_extension.dart';
+import 'package:space_farm/src/common/extensions/context_extension.dart';
 import 'package:space_farm/src/initialization/model/dependencies_container.dart';
 
 class DependenciesScope extends InheritedWidget {

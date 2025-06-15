@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:space_farm/src/common/constant/localization/generated/l10n.dart';
+import 'package:space_farm/src/common/constant/localization/localization.dart';
 import 'package:space_farm/src/initialization/model/dependencies_container.dart';
 import 'package:space_farm/src/initialization/widget/dependencies_scope.dart';
 
@@ -41,4 +43,6 @@ extension InheritedExtension on BuildContext {
       ));
 
   DependenciesContainer get dependencies => DependenciesScope.of(this);
+
+  GeneratedLocalizations get l10n => Localization.of(this);
 }

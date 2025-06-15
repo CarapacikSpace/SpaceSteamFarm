@@ -31,22 +31,6 @@ final class LocalAppsDataSource implements ILocalAppsDataSource {
 
   @override
   Future<void> setData(List<LocalApp> newData) async {
-    // final existingData = await getData();
-    //
-    // final mergedById = <int, LocalApp>{for (final app in existingData) app.appid: app};
-    //
-    // for (final app in newData) {
-    //   final old = mergedById[app.appid];
-    //
-    //   final hasNewTime = app.playtimeMinutes != null && app.playtimeMinutes! > 0;
-    //   final isNewApp = old == null;
-    //
-    //   if (hasNewTime || isNewApp) {
-    //     mergedById[app.appid] = app;
-    //   }
-    // }
-    //
-    // final mergedList = mergedById.values.toList();
     await _data.set(json.encode(newData.map((e) => e.toJson()).toList()));
   }
 

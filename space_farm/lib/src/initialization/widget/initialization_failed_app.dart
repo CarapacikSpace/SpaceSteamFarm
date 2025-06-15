@@ -1,21 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:space_farm/src/common/extensions/context_extension.dart';
 
-/// {@template initialization_failed_screen}
-/// Screen that is shown when the initialization of the app fails.
-/// {@endtemplate}
 class InitializationFailedApp extends StatefulWidget {
-  /// {@macro initialization_failed_screen}
   const InitializationFailedApp({required this.error, required this.stackTrace, this.onRetryInitialization, super.key});
 
-  /// The error that caused the initialization to fail.
   final Object error;
 
-  /// The stack trace of the error that caused the initialization to fail.
   final StackTrace stackTrace;
 
-  /// The callback that will be called when the retry button is pressed.
-  ///
-  /// If null, the retry button will not be shown.
   final Future<void> Function()? onRetryInitialization;
 
   @override
@@ -23,7 +15,6 @@ class InitializationFailedApp extends StatefulWidget {
 }
 
 class _InitializationFailedAppState extends State<InitializationFailedApp> {
-  /// Whether the initialization is in progress.
   final _inProgress = ValueNotifier<bool>(false);
 
   @override
@@ -53,7 +44,7 @@ class _InitializationFailedAppState extends State<InitializationFailedApp> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text('Initialization failed', style: typography.headlineMedium),
+                  Text(context.l10n.initializationFailed, style: typography.headlineMedium),
                   if (widget.onRetryInitialization != null)
                     IconButton(icon: const Icon(Icons.refresh), onPressed: _retryInitialization),
                 ],

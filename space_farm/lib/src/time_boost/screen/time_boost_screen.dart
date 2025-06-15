@@ -7,7 +7,8 @@ import 'package:flutter/services.dart' show FilteringTextInputFormatter;
 import 'package:space_farm/src/apps/data/apps_repository.dart';
 import 'package:space_farm/src/apps/model/local_app.dart';
 import 'package:space_farm/src/apps/screen/load_apps_data_screen.dart';
-import 'package:space_farm/src/common/components/extensions/context_extension.dart';
+import 'package:space_farm/src/common/extensions/context_extension.dart';
+import 'package:space_farm/src/settings/widget/settings_screen.dart';
 import 'package:space_farm/src/shared/dropdown.dart';
 import 'package:space_farm/src/shared/elevated_button.dart';
 import 'package:space_farm/src/shared/filled_button.dart';
@@ -20,6 +21,7 @@ import 'package:space_farm/src/time_boost/logic/game_filtering.dart';
 import 'package:space_farm/src/time_boost/logic/game_launcher.dart';
 import 'package:space_farm/src/time_boost/logic/game_marking.dart';
 import 'package:space_farm/src/time_boost/model/game_filter_type.dart';
+import 'package:space_farm/src/time_boost/model/sort_type.dart';
 import 'package:space_farm/src/time_boost/model/time_filter_type.dart';
 import 'package:space_farm/src/time_boost/widget/apps_grid.dart';
 import 'package:space_farm/src/time_boost/widget/launched_games_info.dart';
@@ -46,11 +48,14 @@ class _TimeBoostScreenState extends State<TimeBoostScreen> {
   );
   TimeFilterType _timeFilterType = TimeFilterType.hours;
   GameFilterType _gameFilterType = GameFilterType.all;
+  SortType _sortType = SortType.playtime;
 
   late final GameLauncher _launcher;
   late final GameMarking _marker;
 
   List<LocalApp> _apps = [];
+  bool _initialLoading = true;
+  static const _maxRunningApps = 32;
 
   @override
   void initState() {
@@ -76,6 +81,9 @@ class _TimeBoostScreenState extends State<TimeBoostScreen> {
 
   Future<void> _initialAppsLoading() async {
     try {
+      setState(() {
+        _initialLoading = true;
+      });
       final apps = await _appsRepository.getApps$FromCacheAndUpdate();
       apps.sortByPlaytimeTypeName();
       setState(() {
@@ -83,7 +91,11 @@ class _TimeBoostScreenState extends State<TimeBoostScreen> {
       });
     } on Object catch (e, st) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        showSnack(context, 'Ошибка при загрузке игр: $e\n$st');
+        showSnack(context, '${context.l10n.errorLoadingGames}: $e\n$st');
+      });
+    } finally {
+      setState(() {
+        _initialLoading = false;
       });
     }
   }
@@ -104,27 +116,11 @@ class _TimeBoostScreenState extends State<TimeBoostScreen> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         surfaceTintColor: Colors.transparent,
-        title: Row(
-          children: [
-            const Text('SPACE FARM', style: TextStyle(fontWeight: FontWeight.w700)),
-            const SizedBox(width: 12),
-            LaunchedGamesInfo(
-              total: _launcher.launchedGames.length,
-              batch: _launcher.batchLaunchedAppIds.length,
-              onStopBatch: () => _stopMany(_launcher.batchLaunchedAppIds),
-              onStopManual: () => _stopMany(
-                _launcher.launchedGames
-                    .map((g) => g.app.appId)
-                    .where((id) => !_launcher.batchLaunchedAppIds.contains(id))
-                    .toSet(),
-              ),
-            ),
-          ],
-        ),
+        title: Text(context.l10n.appTitle.toUpperCase(), style: const TextStyle(fontWeight: FontWeight.w700)),
         centerTitle: false,
         actions: [
           IconButton(
-            tooltip: 'HARD STOP',
+            tooltip: context.l10n.hardStop,
             onPressed: () async {
               final confirm = await showDialog<bool>(
                 context: context,
@@ -141,25 +137,25 @@ class _TimeBoostScreenState extends State<TimeBoostScreen> {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Text(
-                            'Остановить ВСЕ Steam-игры?'.toUpperCase(),
+                            context.l10n.stopAllSteamGames.toUpperCase(),
                             style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
                           ),
                           const SizedBox(height: 16),
-                          const Text('Это остановит все процессы, включая те, что не отображаются в приложении'),
+                          Text(context.l10n.stopAllSteamGamesWarning),
                           const SizedBox(height: 32),
                           Row(
                             children: [
                               Expanded(
-                                child: SteamFilledButton(
-                                  onPressed: () => Navigator.of(context).pop(false),
-                                  child: const Text('Отмена', style: TextStyle(color: Colors.white)),
+                                child: SteamElevatedButton(
+                                  onPressed: () => Navigator.of(context).pop(true),
+                                  child: Text(context.l10n.stop, style: const TextStyle(color: Colors.white)),
                                 ),
                               ),
                               const SizedBox(width: 16),
                               Expanded(
-                                child: SteamElevatedButton(
-                                  onPressed: () => Navigator.of(context).pop(true),
-                                  child: const Text('Stop', style: TextStyle(color: Colors.white)),
+                                child: SteamFilledButton(
+                                  onPressed: () => Navigator.of(context).pop(false),
+                                  child: Text(context.l10n.cancel, style: const TextStyle(color: Colors.white)),
                                 ),
                               ),
                             ],
@@ -171,7 +167,7 @@ class _TimeBoostScreenState extends State<TimeBoostScreen> {
                 ),
               );
               if (confirm ?? false) {
-                await _steamGameService.killAllSteamGames();
+                await _steamGameService.killAllProcesses();
                 _launcher.launchedGames.clear();
                 _launcher.batchLaunchedAppIds.clear();
                 _launcher.gameStartTimes.clear();
@@ -186,8 +182,14 @@ class _TimeBoostScreenState extends State<TimeBoostScreen> {
           ),
           const SizedBox(width: 8),
           IconButton(
+            icon: const Icon(Icons.settings),
+            tooltip: context.l10n.settings,
+            onPressed: () => _openSettingsScreen(context),
+          ),
+          const SizedBox(width: 8),
+          IconButton(
             icon: const Icon(Icons.download),
-            tooltip: 'Загрузить/обновить список игр',
+            tooltip: context.l10n.loadGames,
             onPressed: () => _openFetchScreen(context),
           ),
           const SizedBox(width: 16),
@@ -197,6 +199,18 @@ class _TimeBoostScreenState extends State<TimeBoostScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            if (_launcher.launchedGames.isNotEmpty)
+              LaunchedGamesInfo(
+                total: _launcher.launchedGames.length,
+                batch: _launcher.batchLaunchedAppIds.length,
+                onStopBatch: () => _stopMany(_launcher.batchLaunchedAppIds),
+                onStopManual: () => _stopMany(
+                  _launcher.launchedGames
+                      .map((g) => g.app.appId)
+                      .where((id) => !_launcher.batchLaunchedAppIds.contains(id))
+                      .toSet(),
+                ),
+              ),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Wrap(
@@ -215,6 +229,16 @@ class _TimeBoostScreenState extends State<TimeBoostScreen> {
                         }
                       });
                     },
+                  ),
+                  SteamDropdownSingle<SortType>(
+                    options: SortType.values.toSet(),
+                    selected: _sortType,
+                    onChanged: (type) {
+                      setState(() {
+                        _sortType = type;
+                      });
+                    },
+                    labelBuilder: (type) => type.localizedText(context),
                   ),
                   SizedBox(
                     width: 180,
@@ -268,7 +292,7 @@ class _TimeBoostScreenState extends State<TimeBoostScreen> {
                   ),
                   SizedBox(
                     width: 200,
-                    child: SteamTextField(controller: _searchController, hintText: 'Поиск по названию'),
+                    child: SteamTextField(controller: _searchController, hintText: context.l10n.searchByName),
                   ),
                   Row(
                     spacing: 8,
@@ -280,7 +304,7 @@ class _TimeBoostScreenState extends State<TimeBoostScreen> {
                           controller: _minController,
                           inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                           keyboardType: TextInputType.number,
-                          hintText: 'min',
+                          hintText: context.l10n.filterMin,
                         ),
                       ),
                       SizedBox(
@@ -289,7 +313,7 @@ class _TimeBoostScreenState extends State<TimeBoostScreen> {
                           controller: _maxController,
                           inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                           keyboardType: TextInputType.number,
-                          hintText: 'max',
+                          hintText: context.l10n.filterMax,
                         ),
                       ),
                     ],
@@ -306,14 +330,14 @@ class _TimeBoostScreenState extends State<TimeBoostScreen> {
                   SteamElevatedButton(
                     onPressed: () async => _launchMarked(),
                     child: Text(
-                      'Запустить отмеченные игры'.toUpperCase(),
+                      context.l10n.actionLaunchMarked.toUpperCase(),
                       style: const TextStyle(fontSize: 12, height: 1, color: Colors.white),
                     ),
                   ),
                   SteamElevatedButton(
                     onPressed: () async => _launchFavorite(),
                     child: Text(
-                      'Запустить избранные'.toUpperCase(),
+                      context.l10n.actionLaunchFavorites.toUpperCase(),
                       style: const TextStyle(fontSize: 12, height: 1, color: Colors.white),
                     ),
                   ),
@@ -332,7 +356,7 @@ class _TimeBoostScreenState extends State<TimeBoostScreen> {
                       ),
                     ),
                     child: Text(
-                      'Отметить игры'.toUpperCase(),
+                      context.l10n.actionMark.toUpperCase(),
                       style: const TextStyle(fontSize: 12, height: 1, color: Colors.white),
                     ),
                   ),
@@ -351,16 +375,21 @@ class _TimeBoostScreenState extends State<TimeBoostScreen> {
                     timeFilterType: _timeFilterType,
                     gameFilterType: _gameFilterType,
                     selectedTypes: _selectedTypes,
+                    sortType: _sortType,
                     launchedAppIds: _launcher.launchedGames.map((g) => g.app.appId).toSet(),
                   );
                   final filteredApps = filter.apply(_apps);
                   return DecoratedBox(
                     decoration: const BoxDecoration(color: Color(0xFF2D333C)),
-                    child: _apps.isEmpty
+                    child: _initialLoading
                         ? const Center(
+                            child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation(Color(0xFF1A9FFF))),
+                          )
+                        : _apps.isEmpty
+                        ? Center(
                             child: Text(
-                              'Список игр пуст',
-                              style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.w700),
+                              context.l10n.emptyGameList,
+                              style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.w700),
                             ),
                           )
                         : AppsGridWidget(
@@ -389,6 +418,16 @@ class _TimeBoostScreenState extends State<TimeBoostScreen> {
     }
     if (result) {
       await _initialAppsLoading();
+    }
+  }
+
+  Future<void> _openSettingsScreen(BuildContext context) async {
+    final result = await Navigator.of(context).push(MaterialPageRoute<bool>(builder: (_) => const SettingsScreen()));
+    if (result == null) {
+      return;
+    }
+    if (context.mounted) {
+      setState(() {});
     }
   }
 
@@ -421,7 +460,7 @@ class _TimeBoostScreenState extends State<TimeBoostScreen> {
 
     _launcher.batchQueue.clear();
     final toLaunch = marked
-        .take(80)
+        .take(_maxRunningApps * 3)
         .where((app) => !_launcher.launchedGames.any((g) => g.app.appId == app.appId))
         .toList();
 
@@ -431,7 +470,7 @@ class _TimeBoostScreenState extends State<TimeBoostScreen> {
       setState(() {});
     }
 
-    for (var i = 0; i < 30 && _launcher.batchQueue.isNotEmpty; i++) {
+    for (var i = 0; i < _maxRunningApps && _launcher.batchQueue.isNotEmpty; i++) {
       final app = _launcher.batchQueue.removeFirst();
       _launcher.batchLaunchedAppIds.add(app.appId);
       await _launcher.toggleGame(app);
@@ -450,7 +489,7 @@ class _TimeBoostScreenState extends State<TimeBoostScreen> {
 
     _launcher.batchQueue.clear();
     final toLaunch = favorites
-        .take(60)
+        .take(_maxRunningApps * 2)
         .where((app) => !_launcher.launchedGames.any((g) => g.app.appId == app.appId))
         .toList();
 
@@ -460,7 +499,7 @@ class _TimeBoostScreenState extends State<TimeBoostScreen> {
       setState(() {});
     }
 
-    for (var i = 0; i < 30 && _launcher.batchQueue.isNotEmpty; i++) {
+    for (var i = 0; i < _maxRunningApps && _launcher.batchQueue.isNotEmpty; i++) {
       final app = _launcher.batchQueue.removeFirst();
       _launcher.batchLaunchedAppIds.add(app.appId);
       await _launcher.toggleGame(app);

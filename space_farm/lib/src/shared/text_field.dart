@@ -54,7 +54,18 @@ class SteamTextField extends StatelessWidget {
                 listenable: controller,
                 builder: (context, child) {
                   if (controller.text.isNotEmpty) {
-                    return IconButton(icon: const Icon(Icons.clear), onPressed: controller.clear);
+                    return MouseRegion(
+                      cursor: SystemMouseCursors.click,
+                      child: GestureDetector(
+                        onTap: controller.clear,
+                        behavior: HitTestBehavior.opaque,
+                        child: Container(
+                          height: double.infinity,
+                          padding: const EdgeInsets.symmetric(horizontal: 4),
+                          child: const Icon(Icons.clear, size: 16),
+                        ),
+                      ),
+                    );
                   } else {
                     return const SizedBox.shrink();
                   }
