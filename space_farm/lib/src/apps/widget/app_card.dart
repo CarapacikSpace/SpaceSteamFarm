@@ -264,6 +264,7 @@ class _MenuItemState extends State<MenuItem> {
 
   Future<void> _handleTap() async {
     await PopUpMenuController.instance.hide();
+    widget.onTap.call();
   }
 
   @override

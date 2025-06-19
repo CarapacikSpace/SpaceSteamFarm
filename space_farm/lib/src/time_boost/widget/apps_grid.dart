@@ -27,7 +27,7 @@ class AppsGridWidget extends StatelessWidget {
     if (cardType == SteamAppCardType.icon) {
       return ListView.builder(
         itemCount: apps.length,
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.zero,
         itemBuilder: (context, index) {
           final app = apps[index];
           final isRunning = launchedAppIds.contains(app.appId);

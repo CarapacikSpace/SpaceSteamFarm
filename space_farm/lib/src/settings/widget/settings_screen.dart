@@ -87,72 +87,74 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       for (final cardType in SteamAppCardType.values)
-                        Padding(
-                          padding: const EdgeInsets.only(bottom: 16),
-                          child: MouseRegion(
-                            cursor: SystemMouseCursors.click,
-                            child: GestureDetector(
-                              behavior: HitTestBehavior.opaque,
-                              onTap: () {
-                                SettingsScope.of(context, listen: false).add(
-                                  AppSettingsEvent.updateAppSettings(
-                                    appSettings: settings.copyWith(cardType: cardType),
+                        MouseRegion(
+                          cursor: SystemMouseCursors.click,
+                          child: GestureDetector(
+                            behavior: HitTestBehavior.opaque,
+                            onTap: () {
+                              SettingsScope.of(context, listen: false).add(
+                                AppSettingsEvent.updateAppSettings(appSettings: settings.copyWith(cardType: cardType)),
+                              );
+                            },
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.only(top: 8, right: 8),
+                                  child: SteamCheckbox(value: cardType == settings.cardType),
+                                ),
+                                switch (cardType) {
+                                  SteamAppCardType.header => SizedBox(
+                                    width: 200,
+                                    child: HeaderAppCardContent(
+                                      app: exampleApp,
+                                      onTap: () {
+                                        SettingsScope.of(context, listen: false).add(
+                                          AppSettingsEvent.updateAppSettings(
+                                            appSettings: settings.copyWith(cardType: cardType),
+                                          ),
+                                        );
+                                      },
+                                      isRunning: false,
+                                      onRightClick: (_) {},
+                                      timeFilterType: TimeFilterType.hours,
+                                    ),
                                   ),
-                                );
-                              },
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Padding(
-                                    padding: const EdgeInsets.only(top: 4, right: 12),
-                                    child: SteamCheckbox(value: cardType == settings.cardType),
+                                  SteamAppCardType.library => SizedBox(
+                                    height: 300,
+                                    width: 200,
+                                    child: LibraryAppCardContent(
+                                      app: exampleApp,
+                                      onTap: () {
+                                        SettingsScope.of(context, listen: false).add(
+                                          AppSettingsEvent.updateAppSettings(
+                                            appSettings: settings.copyWith(cardType: cardType),
+                                          ),
+                                        );
+                                      },
+                                      isRunning: false,
+                                      onRightClick: (_) {},
+                                      timeFilterType: TimeFilterType.hours,
+                                    ),
                                   ),
-                                  SizedBox(
-                                    width: cardType == SteamAppCardType.icon ? 300 : 200,
-                                    child: switch (cardType) {
-                                      SteamAppCardType.header => HeaderAppCardContent(
-                                        app: exampleApp,
-                                        onTap: () {
-                                          SettingsScope.of(context, listen: false).add(
-                                            AppSettingsEvent.updateAppSettings(
-                                              appSettings: settings.copyWith(cardType: cardType),
-                                            ),
-                                          );
-                                        },
-                                        isRunning: false,
-                                        onRightClick: (_) {},
-                                        timeFilterType: TimeFilterType.hours,
-                                      ),
-                                      SteamAppCardType.library => LibraryAppCardContent(
-                                        app: exampleApp,
-                                        onTap: () {
-                                          SettingsScope.of(context, listen: false).add(
-                                            AppSettingsEvent.updateAppSettings(
-                                              appSettings: settings.copyWith(cardType: cardType),
-                                            ),
-                                          );
-                                        },
-                                        isRunning: false,
-                                        onRightClick: (_) {},
-                                        timeFilterType: TimeFilterType.hours,
-                                      ),
-                                      SteamAppCardType.icon => IconAppCardContent(
-                                        app: exampleApp,
-                                        onTap: () {
-                                          SettingsScope.of(context, listen: false).add(
-                                            AppSettingsEvent.updateAppSettings(
-                                              appSettings: settings.copyWith(cardType: cardType),
-                                            ),
-                                          );
-                                        },
-                                        isRunning: false,
-                                        onRightClick: (_) {},
-                                        timeFilterType: TimeFilterType.hours,
-                                      ),
-                                    },
+                                  SteamAppCardType.icon => SizedBox(
+                                    width: 300,
+                                    child: IconAppCardContent(
+                                      app: exampleApp,
+                                      onTap: () {
+                                        SettingsScope.of(context, listen: false).add(
+                                          AppSettingsEvent.updateAppSettings(
+                                            appSettings: settings.copyWith(cardType: cardType),
+                                          ),
+                                        );
+                                      },
+                                      isRunning: false,
+                                      onRightClick: (_) {},
+                                      timeFilterType: TimeFilterType.hours,
+                                    ),
                                   ),
-                                ],
-                              ),
+                                },
+                              ],
                             ),
                           ),
                         ),

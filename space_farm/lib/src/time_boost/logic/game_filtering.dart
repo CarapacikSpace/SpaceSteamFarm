@@ -28,13 +28,14 @@ class GameFilterController {
 
   List<LocalApp> apply(List<LocalApp> apps) {
     final query = searchController.text.trim().toLowerCase();
+    final extractedAppId = _extractAppId(query);
     final min = int.tryParse(minController.text.trim());
     final max = int.tryParse(maxController.text.trim());
 
     final filtered =
         apps.where((a) {
           final matchName = a.name.toLowerCase().contains(query);
-          final matchId = a.appId.toString() == query;
+          final matchId = extractedAppId != null && a.appId == extractedAppId;
 
           final playtime = a.playtimeMinutes ?? -1;
           final playtimeInUnits = timeFilterType == TimeFilterType.hours ? playtime / 60 : playtime;
@@ -70,5 +71,22 @@ class GameFilterController {
     final cleaned = lower.replaceFirst(RegExp(r'^(a|an|the)\s+', caseSensitive: false), '');
 
     return cleaned;
+  }
+
+  int? _extractAppId(String input) {
+    final regex = RegExp(r'(\d+)(?:/|$)');
+    final uriPattern = RegExp(r'(steamcommunity\.com|store\.steampowered\.com)/app/(\d+)');
+
+    final match = uriPattern.firstMatch(input);
+    if (match != null) {
+      return int.tryParse(match.group(2)!);
+    }
+
+    final numberMatch = regex.firstMatch(input);
+    if (numberMatch != null) {
+      return int.tryParse(numberMatch.group(1)!);
+    }
+
+    return null;
   }
 }

@@ -30,9 +30,10 @@ class LibraryAppCardContent extends StatelessWidget {
         : '${app.playtimeMinutes} ${context.l10n.minutesShort}';
 
     return Stack(
+      fit: StackFit.expand,
       children: [
         Padding(
-          padding: const EdgeInsets.only(bottom: 4),
+          padding: const EdgeInsets.only(bottom: 8),
           child: Material(
             elevation: 8,
             shape: RoundedRectangleBorder(

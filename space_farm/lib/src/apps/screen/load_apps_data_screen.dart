@@ -267,30 +267,28 @@ class _LoadAppsDataScreenState extends State<LoadAppsDataScreen> {
                             spacing: 8,
                             children: [
                               const CircularProgressIndicator(valueColor: AlwaysStoppedAnimation(Color(0xFF1A9FFF))),
-
-                              Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  if (_loadApps == _LoadAppsLoadingState.steamKit)
-                                    Text(
-                                      context.l10n.loadFromSteamKit,
-                                      style: const TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w700,
-                                      ),
-                                    )
-                                  else if (_loadApps == _LoadAppsLoadingState.webApi)
-                                    Text(
-                                      context.l10n.loadFromWebApi,
-                                      style: const TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w700,
-                                      ),
-                                    ),
-                                ],
-                              ),
+                              if (_loadApps == _LoadAppsLoadingState.steamKit)
+                                Text(
+                                  context.l10n.loadFromSteamKit,
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                  maxLines: 2,
+                                  textAlign: TextAlign.center,
+                                )
+                              else if (_loadApps == _LoadAppsLoadingState.webApi)
+                                Text(
+                                  context.l10n.loadFromWebApi,
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                  maxLines: 2,
+                                  textAlign: TextAlign.center,
+                                ),
                             ],
                           ),
                         ),
