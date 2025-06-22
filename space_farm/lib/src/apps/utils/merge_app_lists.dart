@@ -24,10 +24,16 @@ List<LocalApp> mergeAppsLists({
     final owned = ownedMap[id];
     final recent = recentMap[id];
 
-    final playtime = recent?.playtimeMinutes ?? owned?.playtimeMinutes ?? cached?.playtimeMinutes;
+    final playtimeMinutes = recent?.playtimeMinutes ?? owned?.playtimeMinutes ?? cached?.playtimeMinutes;
     final lastPlayed = recent?.lastPlayed ?? owned?.lastPlayed ?? cached?.lastPlayed;
 
-    final stopAt = _resolveStopAtMinutes(playtime, cached?.stopAtMinutes);
+    final stopAtMinutes = _resolveStopAtMinutes(playtimeMinutes, cached?.stopAtMinutes);
+    final isFavorite = cached?.isFavorite;
+    final reviewPercentage = steamKit?.reviewPercentage ?? cached?.reviewPercentage;
+    final logo = steamKit?.logo ?? cached?.logo;
+    final icon = steamKit?.icon ?? cached?.icon;
+    final isHidden = steamKit?.isHidden ?? cached?.isHidden ?? false;
+
     final name =
         (recent?.name.nullIFEmpty ??
                 owned?.name.nullIFEmpty ??
@@ -36,21 +42,20 @@ List<LocalApp> mergeAppsLists({
                 id.toString())
             .trim();
     final type = steamKit?.type ?? cached?.type ?? SteamAppType.other;
-    final reviewPercentage = steamKit?.reviewPercentage ?? cached?.reviewPercentage;
-    final isHidden = steamKit?.isHidden ?? cached?.isHidden ?? false;
 
     result.add(
       LocalApp(
         appId: id,
         name: name,
         type: type,
+        stopAtMinutes: stopAtMinutes,
+        isFavorite: isFavorite ?? false,
         reviewPercentage: reviewPercentage,
-        logo: steamKit?.logo ?? cached?.logo,
-        icon: steamKit?.icon ?? cached?.icon,
-        playtimeMinutes: playtime,
-        lastPlayed: lastPlayed,
-        stopAtMinutes: stopAt,
+        logo: logo,
+        icon: icon,
         isHidden: isHidden,
+        playtimeMinutes: playtimeMinutes,
+        lastPlayed: lastPlayed,
       ),
     );
   }
